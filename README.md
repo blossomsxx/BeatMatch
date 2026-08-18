@@ -1,2 +1,2 @@
 # PROJECTS
-my projects for resume
+All my personal projects
