@@ -7,14 +7,14 @@ to win, get at least 50 hits. You will lose the game if you get more than 30 mis
 
 This project was originally created in CMU CS Academy and later rebuilt in Visual Studio Code where it was implemented using Python's pygame library.
 
-#Features
+# Features
 - 
 
-#Tools
+# Tools
 - Python
 - Pygame
 
-##What I learned
+# What I learned
 
 
-#Future Improvements
+# Future Improvements
