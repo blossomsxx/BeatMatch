@@ -8,7 +8,12 @@ to win, get at least 50 hits. You will lose the game if you get more than 30 mis
 This project was originally created in CMU CS Academy and later rebuilt in Visual Studio Code where it was implemented using Python's pygame library.
 
 # Features
-- 
+- Dynamically generated falling beats
+- Keyboard-based rhythm matching
+- Hit/miss tracking
+- Target detection
+- Win and lose conditions
+- Custom visual design
 
 # Tools
 - Python
@@ -16,5 +21,8 @@ This project was originally created in CMU CS Academy and later rebuilt in Visua
 
 # What I learned
 
+# Screenshots
+
+# Demo
 
 # Future Improvements
