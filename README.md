@@ -1,14 +1,14 @@
 # BeatMatch
 
-A 2D rhythm game rebuilt in Python using Pygame.
+A 2D rhythm game rebuilt in Visual Studio Code using Python's pygame library.
 
 # Overview
 
 BeatMatch is a rhythm game where players press the corresponding
-keys as falling beats reach their targets.
+keys (askl) as falling beats reach their targets.
 
 The original version was created in CMU CS Academy. I am rebuilding
-and expanding the project independently in Pygame to learn a more
+and expanding the project independently in VS Code's Pygame to learn a more
 flexible game-development framework and strengthen my Python skills.
 
 # Current Features
