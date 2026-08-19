@@ -1,5 +1,6 @@
 import pygame
 import sys
+import random
 
 
 # ============================================================
@@ -8,7 +9,6 @@ import sys
 
 # initiate game
 pygame.init()
-
 
 # ============================================================
 # CONSTANTS
@@ -102,8 +102,8 @@ class Beat(pygame.sprite.Sprite):
         # initializes the Pygame Sprite
         pygame.sprite.Sprite.__init__(self)
 
-        # creates the image/surface that represents the Beat
-        self.image = pygame.Surface([30, 30])
+        # Transparent background
+        self.image = pygame.Surface([30,30],pygame.SRCALPHA)
 
         # stores the Beat's x position
         self.x = x
@@ -118,7 +118,7 @@ class Beat(pygame.sprite.Sprite):
         self.size = 15
 
         # stores the Beat's speed of movement
-        self.speed = 5
+        self.speed = 2
 
         # creates the rectangular area used to position the Sprite
         self.rect = self.image.get_rect(center=(15, 15))
@@ -201,6 +201,8 @@ def createBeats(x):
 # ============================================================
 # GAME LOOP
 # ============================================================
+clock = pygame.time.Clock()
+beat_timer = 0
 
 running = True
 
@@ -241,14 +243,82 @@ while running:
     # UPDATE
     # --------------------------------------------------------
 
-    # Need to figure out how to make existing Beats move downward over time.
+    # increases the timer by 1 every frame
+    beat_timer += 1
+
+    # creates a new beat pattern every 30 frames
+    if beat_timer >=30:
+
+        #randomly chooses one of the five possible patterns
+        choice = random.choice([0, 1, 2, 3, 4])
+
+        # choice 0 creates one Beat in the first lane
+        if choice == 0:
+            createBeats(50)
+        
+        # choice 1 creates one Beat in the second lane
+        if choice == 1:
+            createBeats(150)
+
+        # choice 2 creates one Beat in the third lane
+        if choice == 2:
+            createBeats(250)
+
+        # choice 3 creates one Beat in the fourth lane
+        if choice == 3:
+            createBeats(350)
+
+        # choice 4 creates two Beats simultaneously in the first and fourth lane
+        if choice == 4:
+            createBeats(50)
+            createBeats(350)
+
+        # resets the timer to 0 so that the next Beat pattern will be created after another 30 frames
+        beat_timer = 0
+
+    # moves every existing beat downwards
+    for beat in beats:
+
+        # increases Beat's y-position by its speed while keep its x-position the same
+        beat.rect.center = (beat.rect.centerx, beat.rect.centery + beat.speed)
+
+        # removes the Beat once its bottom touches the bottom of the game screen
+        if beat.rect.bottom >= 400:
+            beats.remove(beat)
+    
 
     # --------------------------------------------------------
     # DRAW
     # --------------------------------------------------------
 
+    # redraw the background
+    screen.fill((135, 206, 235))
+
+    # redraw background circles
+    pygame.draw.circle(screen, steel_blue, (51, 400), 175)
+    pygame.draw.circle(screen, steel_blue, (400, 400), 200)
+    pygame.draw.circle(screen, steel_blue, (167, 374), 100)
+    pygame.draw.circle(screen, steel_blue, (215, 330), 100)
+
+    # redraw lane lines
+    for i in range(3):
+        x = 100 + 100 * i
+        pygame.draw.line(screen, WHITE, (x, 0), (x, 400))
+
+    # redraw targets
+    pygame.draw.circle(screen, darkSlateBlue, (50, 300), 20)
+    pygame.draw.circle(screen, darkSlateBlue, (150, 300), 20)
+    pygame.draw.circle(screen, darkSlateBlue, (250, 300), 20)
+    pygame.draw.circle(screen, darkSlateBlue, (350, 300), 20)
+
+    # draw beats at their new positions
+    beats.draw(screen)
+
     # updates the display so everything drawn on the screen becomes visible
     pygame.display.flip()
+
+    # keep game running at 60 frames per second
+    clock.tick(60)
 
 
 # ============================================================
@@ -270,8 +340,11 @@ NOTES TO SELF:
 
 - Had to import sys to use sys.exit() in the try-except block.
 
-- pygame.draw.circle(...) draws a circle and returns a Rect describing the
-  area that was drawn, but does not create a movable circle OBJECT.
+- pygame.draw.circle(...) draws a circle directly onto a surface. It returns a Rect describing the
+  area affected by the drawing, but does not create a movable circle OBJECT.
+
+- To make the circle movable, I need to create a Sprite OBJECT and use its
+  self.image to display the circle and self.rect to control its position.
 
 - To make beats movable and give them properties such as position, color,
   size, and speed, I created a Beat OBJECT/class.
@@ -310,5 +383,102 @@ NOTES TO SELF:
 - len(beats) can be used to check how many Beat objects are currently in
   the Sprite group.
 
-- Need to figure out how to make existing Beats move downward over time.
+- Creating a Beat object does not automatically make it appear on the
+  screen. The Sprite group must be drawn using beats.draw(screen).
+
+- Moving a Beat's rect changes its position, but the old position can
+  remain visible if the background is not redrawn.
+
+- Pygame animation works by repeatedly updating object positions and
+  redrawing the screen. The background should be redrawn each frame so
+  the previous position of a moving object is covered.
+
+- I do not need to manually delete the previous position of a Beat.
+  Redrawing the background each frame effectively removes the old image.
+
+- The game loop repeatedly handles events, updates objects, draws the
+  current frame, and displays the frame.
+
+- pygame.display.flip() updates the window so the newly drawn frame becomes
+  visible.
+
+- pygame.time.Clock() can be used to control the game's frame rate.
+
+- clock.tick(60) limits the game loop to approximately 60 frames per second,
+  making movement more consistent and smooth.
+
+- A Beat's speed can be stored in self.speed and used when updating its
+  position instead of hard-coding a movement value.
+
+- To make Beats fall downward, increase their y-coordinate over time.
+
+- A timer can control how frequently new Beats are created instead of
+  creating a new Beat every frame.
+
+- beat_timer can be increased once per frame and reset after creating a
+  new Beat.
+
+- random.choice(...) can be used to randomly choose which lane a new Beat
+  appears in.
+
+- The four lane x-coordinates are 50, 150, 250, and 350.
+
+- If every Beat is created with the same x-coordinate, all Beats will
+  appear in the same lane and can stack on top of each other.
+
+- pygame.SRCALPHA allows a Surface to have transparency, which is useful
+  when creating a circular Sprite because the corners of the Surface
+  should remain transparent.
+
+- The Beat's image and rect work together: self.image determines what the
+  Beat looks like, while self.rect determines where the Beat is positioned
+  on the screen.
+
+- A Sprite's self.image is a Surface, so it can have a transparent background.
+  pygame.SRCALPHA allows the Surface to store transparency.
+
+- Making self.image transparent means only the shape drawn onto the Surface
+  is visible, instead of seeing the rectangular Surface around the shape.
+
+- The transparent part belongs to self.image, not self.rect. The rect
+  itself is not something that gets visually drawn to the screen unless
+  I specifically draw it.
+
+- A Sprite can be removed from a pygame.sprite.Group() using
+  beats.remove(beat).
+
+- self.rect has properties for the different edges of a Sprite, such as
+  top, bottom, left, and right.
+
+- To remove a Beat when it reaches the bottom of the screen, I can check
+  whether beat.rect.bottom has reached the screen height.
+
+- Removing a Beat from the Sprite group means it will no longer be updated
+  or drawn by beats.draw(screen).
+
+- The original CMU CS Academy game has five possible Beat patterns:
+  four patterns create one Beat in one of the four lanes, and the fifth
+  pattern creates two Beats at the same time in the first and fourth lanes.
+
+- random.choice(...) can be used to randomly select between different
+  Beat patterns, not just individual lane positions.
+
+- The original CMU game uses a random number from 0-4 to determine the
+  Beat pattern.
+
+- In the Pygame version, random.choice([0, 1, 2, 3, 4]) can be used to
+  select one of the five Beat patterns.
+
+- Choices 0-3 create one Beat in one of the four lanes.
+
+- Choice 4 creates two Beats at the same time in the first and fourth lanes.
+
+- The beat_timer controls how often a new Beat pattern is generated.
+
+- At 60 FPS, a beat_timer of 30 means a new pattern is generated about
+  every 0.5 seconds.
+
+- The UPDATE section happens before the DRAW section, so the game first
+  changes the Beat's position and then draws the Beat at its new position.
+
 """
