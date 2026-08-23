@@ -5,11 +5,11 @@ A 2D rhythm game rebuilt in Visual Studio Code using Python's pygame library.
 # Overview
 
 BeatMatch is a rhythm game where players press the corresponding
-keys (askl) as falling beats reach their targets.
+keys (A, S, K, and L) as falling beats reach their targets.
 
 The original version was created in CMU CS Academy. I am independently rebuilding
-and expanding the project independently in VS Code's Pygame to learn a more
-flexible game-development framework and strengthen my Python skills.
+and expanding the project in Pygame using Visual Studio Code to learn a more
+flexible game-development framework and strengthen my Python and object-oriented programming skills.
 
 # Current Features
 
@@ -21,24 +21,23 @@ flexible game-development framework and strengthen my Python skills.
 - Timed Beat spawning
 - Randomized Beat patterns
 - Multiple Beats can spawn simultaneously
-- Beats are removed when they reach the bottom of the screen
+- Hit detection based on Beat proximity to targets
+- Hit and miss tracking
+- Win condition at 50 hits
+- Loss condition at 50 misses
+- In-game hit/miss score display
+- Win and game-over screens
+- Beats are removed after successful hits 
+- Beats are removed when they reach the bottom of the screen (after a miss)
 - Custom game graphics
-- Win screen
 - Event-driven game loop
 - Frame-rate control using Pygame Clock
 
-# In Progress
-
-- Hit/miss detection
-- Score tracking
-- Win/lose conditions
-- In-game UI
-- Difficulty progression
-
-# Technologies
+# Tools
 
 - Python
 - Pygame
+- Visual Studio Code
 
 # What I Learned
 
@@ -48,11 +47,24 @@ flexible game-development framework and strengthen my Python skills.
 - Surfaces and images
 - Rectangles and sprite positioning
 - Object-oriented programming
+- Keyboard event handling
+- Collision/proximity detection
 - Frame-rate control
 - Timed object spawning
 - Randomized game events
 - Managing multiple game objects
+- Game state management
 - Translating a project from one programming framework to another
+
+# Technical Highlights
+- Designed a reusable `Beat` class using object-oriented programming.
+- Used Pygame Sprite Groups to manage multiple falling objects.
+- Implemented an event-driven game loop for keyboard input and game updates.
+- Created randomized Beat spawning patterns using Python's `random` module.
+- Implemented hit detection using positional distance checks.
+- Implemented game-state management using win/loss conditions and Boolean state.
+- Used modular helper functions for score tracking, label creation, and game states.
+- Controlled animation timing and movement using Pygame's Clock and frame rate.
 
 # Project Evolution
 
@@ -69,8 +81,6 @@ Pygame and adapting it to Pygame's Sprite and event systems.
 
 - Add a start screen
 - Add sound effects/music
-- Add difficulty progression
-- Improve hit feedback
 - Add restart functionality
 
 # How to Run
