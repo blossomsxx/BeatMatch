@@ -15,7 +15,7 @@ pygame.init()
 # ============================================================
 
 # constants
-WIDTH, HEIGHT = 400, 350
+WIDTH, HEIGHT = 400, 400
 
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
@@ -34,7 +34,7 @@ darkSlateBlue = (72, 61, 139)
 print("pay attention to the beats (purple circles) falling down.")
 print('press the corresponding keys a, s, k, and l and match them with the corresponding targets.')
 print('if you hit the corresponding target, your hit counter will go up. If you miss, your miss counter will go up.')
-print('to win, get at least 50 hits. You will lose the game if you get more than 30 misses.')
+print('to win, get at least 50 hits. You will lose the game if you get more than 50 misses.')
 
 # creates the game window
 screen = pygame.display.set_mode((400, 400))
@@ -53,6 +53,8 @@ screen.fill((135, 206, 235))
 # set-up font
 try:
     font = pygame.font.SysFont("Arial", 36)  # Use system font
+
+    score_font = pygame.font.SysFont("Arial", 24)
 except Exception as e:
     print(f"Font error: {e}")
     pygame.quit()
@@ -73,6 +75,10 @@ def create_label(text, font, text_color, bg_color=None):
     else:
         return font.render(text, True, text_color)
 
+# checks whether a Beat is close enough to the target
+def isNear(beat, target):
+    return abs(beat.rect.centerx - target.centerx) < 20 and abs(beat.rect.centery - target.centery) < 20
+
 
 # defines custom function win game
 def winGame():
@@ -82,7 +88,22 @@ def winGame():
     screen.fill(green)
 
     # creates the winning message
-    label_ex = create_label("CONGRATS! YOU WON!", font, BLACK, WHITE)
+    label_ex = create_label("CONGRATS! YOU WON!", font, BLACK)
+
+    # places the winning message in the center of the screen
+    label_rect = label_ex.get_rect(center=(WIDTH // 2, HEIGHT // 2))
+
+    # draws the winning message onto the screen
+    screen.blit(label_ex, label_rect)
+
+# defines custom function gameOver
+def gameOver():
+
+    # changes the entire screen to green
+    screen.fill('red')
+
+    # creates the winning message
+    label_ex = create_label("GAME OVER.", font, BLACK)
 
     # places the winning message in the center of the screen
     label_rect = label_ex.get_rect(center=(WIDTH // 2, HEIGHT // 2))
@@ -204,6 +225,25 @@ def createBeats(x):
 clock = pygame.time.Clock()
 beat_timer = 0
 
+# stores the number of successful hits
+hit = 0
+
+# stores the number of missed attempts
+counter = 0
+
+def missCounter():
+    global counter 
+    counter += 1
+    print("miss")
+
+def hitCounter():
+    global hit 
+    hit += 1
+    print("hit")
+
+# stores whether the game has ended
+game_finished = False
+
 running = True
 
 # game loop
@@ -222,22 +262,37 @@ while running:
 
         # checks if keys a,s,k,l are pressed
         elif event.type == pygame.KEYDOWN:
+            hit_target = False
 
-            # checks whether the A key was pressed
-            if event.key == pygame.K_a:
-                print("a was pressed!")
+            for beat in beats:
 
-            # checks whether the S key was pressed
-            elif event.key == pygame.K_s:
-                print("s was pressed!")
+                # checks whether the A key was pressed
+                if event.key == pygame.K_a and isNear(beat,target1):
+                    hitCounter()
+                    hit_target = True
+                    beats.remove(beat)
 
-            # checks whether the K key was pressed
-            elif event.key == pygame.K_k:
-                print("k was pressed!")
+                # checks whether the S key was pressed
+                elif event.key == pygame.K_s and isNear(beat, target2):
+                    hitCounter()
+                    hit_target = True
+                    beats.remove(beat)
 
-            # checks whether the L key was pressed
-            elif event.key == pygame.K_l:
-                print("l was pressed!")
+                # checks whether the K key was pressed
+                elif event.key == pygame.K_k and isNear(beat, target3):
+                    hitCounter()
+                    hit_target = True
+                    beats.remove(beat)
+
+                # checks whether the L key was pressed
+                elif event.key == pygame.K_l and isNear(beat, target4):
+                    hitCounter()
+                    hit_target = True
+                    beats.remove(beat)
+            
+            # checks whether none of the Beats were successfully hit
+            if not hit_target:
+                missCounter()
 
     # --------------------------------------------------------
     # UPDATE
@@ -279,46 +334,69 @@ while running:
     # moves every existing beat downwards
     for beat in beats:
 
-        # increases Beat's y-position by its speed while keep its x-position the same
+        # moves the Beat downwards by its speed while keeping its x-position the same
         beat.rect.center = (beat.rect.centerx, beat.rect.centery + beat.speed)
 
         # removes the Beat once its bottom touches the bottom of the game screen
         if beat.rect.bottom >= 400:
             beats.remove(beat)
+            missCounter()
+    
+    # checks whether the player has reached the win or lose condition
+    if(hit >= 50):
+        winGame()
+        pygame.display.flip()
+        game_finished = True
+
+    elif(counter >= 50):
+        gameOver()
+        pygame.display.flip()
+        game_finished = True
     
 
     # --------------------------------------------------------
     # DRAW
     # --------------------------------------------------------
 
-    # redraw the background
-    screen.fill((135, 206, 235))
+    if not game_finished:
+        # redraw the background
+        screen.fill((135, 206, 235))
 
-    # redraw background circles
-    pygame.draw.circle(screen, steel_blue, (51, 400), 175)
-    pygame.draw.circle(screen, steel_blue, (400, 400), 200)
-    pygame.draw.circle(screen, steel_blue, (167, 374), 100)
-    pygame.draw.circle(screen, steel_blue, (215, 330), 100)
+        # redraw background circles
+        pygame.draw.circle(screen, steel_blue, (51, 400), 175)
+        pygame.draw.circle(screen, steel_blue, (400, 400), 200)
+        pygame.draw.circle(screen, steel_blue, (167, 374), 100)
+        pygame.draw.circle(screen, steel_blue, (215, 330), 100)
 
-    # redraw lane lines
-    for i in range(3):
-        x = 100 + 100 * i
-        pygame.draw.line(screen, WHITE, (x, 0), (x, 400))
+        # redraw lane lines
+        for i in range(3):
+            x = 100 + 100 * i
+            pygame.draw.line(screen, WHITE, (x, 0), (x, 400))
 
-    # redraw targets
-    pygame.draw.circle(screen, darkSlateBlue, (50, 300), 20)
-    pygame.draw.circle(screen, darkSlateBlue, (150, 300), 20)
-    pygame.draw.circle(screen, darkSlateBlue, (250, 300), 20)
-    pygame.draw.circle(screen, darkSlateBlue, (350, 300), 20)
+        # redraw targets
+        pygame.draw.circle(screen, darkSlateBlue, (50, 300), 20)
+        pygame.draw.circle(screen, darkSlateBlue, (150, 300), 20)
+        pygame.draw.circle(screen, darkSlateBlue, (250, 300), 20)
+        pygame.draw.circle(screen, darkSlateBlue, (350, 300), 20)
 
-    # draw beats at their new positions
-    beats.draw(screen)
+        # draw score counter
+        hit_label = create_label(f"Hit: {hit}", score_font, BLACK)
+        miss_label = create_label(f"Miss: {counter}", score_font, BLACK)
 
-    # updates the display so everything drawn on the screen becomes visible
-    pygame.display.flip()
+        hit_rect = hit_label.get_rect(center=(50, 30))
+        miss_rect = miss_label.get_rect(center=(50, 60))
 
-    # keep game running at 60 frames per second
-    clock.tick(60)
+        screen.blit(hit_label, hit_rect)
+        screen.blit(miss_label, miss_rect)
+
+        # draw beats at their new positions
+        beats.draw(screen)
+
+        # updates the display so everything drawn on the screen becomes visible
+        pygame.display.flip()
+
+        # keep game running at 60 frames per second
+        clock.tick(60)
 
 
 # ============================================================
@@ -480,5 +558,60 @@ NOTES TO SELF:
 
 - The UPDATE section happens before the DRAW section, so the game first
   changes the Beat's position and then draws the Beat at its new position.
+
+- A boolean variable such as game_finished can be used to keep track of
+  whether the game has ended.
+
+- game_finished starts as False while the game is running.
+
+- When the player reaches a win or loss condition, game_finished can be
+  changed to True.
+
+- An if statement can check the win condition and an elif statement can
+  check the loss condition so that only one ending happens.
+
+- The order of win and loss conditions matters. If both conditions could
+  be true at the same time, Python checks the first condition first.
+
+- In this game, the hit condition is checked before the miss condition so
+  reaching the hit goal takes priority.
+
+- winGame() and gameOver() change the screen and draw an ending message.
+
+- pygame.display.flip() must be called after drawing the win or game-over
+  screen so the ending screen becomes visible.
+
+- If the normal game drawing code runs after winGame() or gameOver(), it can
+  redraw the game over the ending screen. game_finished can be used to
+  prevent the normal drawing code from running after the game ends.
+
+- A condition such as:
+    if not game_finished:
+  can be used to keep the normal game drawing code running only while the
+  game is active.
+
+- A label can have a transparent background by calling font.render()
+  without providing a background color.
+
+- For example:
+    font.render(text, True, text_color)
+  creates text without a background rectangle.
+
+- Providing a background color to font.render() creates a solid background
+  behind the text.
+
+- Global variables can be modified inside a function by using the global
+  keyword.
+
+- The hitCounter() function increases the global hit counter, while
+  missCounter() increases the global miss counter.
+
+- A Beat that reaches the bottom of the screen counts as a miss and should
+  be removed from the beats group.
+
+- A key press that does not successfully hit a Beat also counts as a miss.
+
+- Removing a Beat after it is successfully hit prevents that same Beat from
+  being hit multiple times.
 
 """
